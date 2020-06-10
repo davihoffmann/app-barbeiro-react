@@ -6,6 +6,7 @@ import api from '~/services/api';
 
 import { signInSuccess, signFailure } from './actions';
 
+// Faz a autenticação do usuario
 export function* signIn({ payload }) {
   try {
     const { email, password } = payload;
@@ -29,4 +30,29 @@ export function* signIn({ payload }) {
   }
 }
 
-export default all([takeLatest('@auth/SIGN_IN_REQUEST', signIn)]);
+// cadastro de novo usuario na aplicação
+export function* signUp({ payload }) {
+  try {
+    const { name, email, password } = payload;
+
+    yield call(api.post, 'users', {
+      name,
+      email,
+      password,
+      provider: true,
+    });
+
+    history.push('/');
+
+    toast.success('Conta cadastrada com sucesso! Você já pode fazer login.');
+  } catch (err) {
+    toast.error('Falha no cadastro, verifique seus dados!');
+
+    yield put(signFailure());
+  }
+}
+
+export default all([
+  takeLatest('@auth/SIGN_IN_REQUEST', signIn),
+  takeLatest('@auth/SIGN_UP_REQUEST', signUp),
+]);
